@@ -1,6 +1,6 @@
 /*
 Project: Sumobot for NRC
-Author:
+Author: Keith Kyru D. Tuscano
 Date: 10/09/25
 Version: 1.0
 */
