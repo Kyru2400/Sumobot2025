@@ -7,41 +7,41 @@
 #define Right_Input1 18
 #define Right_Input2 19
 
-
+const unsigned int Motor_Speed = 160;
 
 void RightMotor_Stop() {
-  analogWrite(Right_Enable,0);
+  analogWrite(Right_Enable, 0);
   digitalWrite(Right_Input1, 0);
   digitalWrite(Right_Input2, 0);
 }
 
 void LeftMotor_Stop() {
-  analogWrite(Left_Enable,0);
+  analogWrite(Left_Enable, 0);
   digitalWrite(Left_Input1, 0);
   digitalWrite(Left_Input2, 0);
 }
 
 
 void RightMotor_Backward() {
-  analogWrite(Right_Enable,80);
+  analogWrite(Right_Enable, Motor_Speed);
   digitalWrite(Right_Input1, 1);
   digitalWrite(Right_Input2, 0);
 }
 
 void LeftMotor_Backward() {
-  analogWrite(Left_Enable,80);
+  analogWrite(Left_Enable, Motor_Speed);
   digitalWrite(Left_Input1, 0);
   digitalWrite(Left_Input2, 1);
 }
 
 void LeftMotor_Forward() {
-  analogWrite(Left_Enable,80);
+  analogWrite(Left_Enable, Motor_Speed);
   digitalWrite(Left_Input1, 1);
   digitalWrite(Left_Input2, 0);
 }
 
 void RightMotor_Forward() {
-  analogWrite(Right_Enable,80);
+  analogWrite(Right_Enable, Motor_Speed);
   digitalWrite(Right_Input1, 0);
   digitalWrite(Right_Input2, 1);
 }
@@ -56,17 +56,17 @@ void Robot_TurnRight() {
   RightMotor_Backward();
 }
 
-void Robot_Forward(){
+void Robot_Forward() {
   LeftMotor_Forward();
   RightMotor_Forward();
 }
 
-void Robot_Backward(){
+void Robot_Backward() {
   LeftMotor_Backward();
   RightMotor_Backward();
 }
 
-void Robot_Stop(){
+void Robot_Stop() {
   LeftMotor_Stop();
   RightMotor_Stop();
 }
@@ -80,10 +80,10 @@ void Motor_Setup() {
   pinMode(Right_Input1, OUTPUT);
   pinMode(Right_Input2, OUTPUT);
 
-  analogWrite(Left_Enable,0);
+  analogWrite(Left_Enable, 0);
   digitalWrite(Left_Input1, 0);
   digitalWrite(Left_Input2, 0);
-  analogWrite(Right_Enable,0);
+  analogWrite(Right_Enable, 0);
   digitalWrite(Right_Input1, 0);
   digitalWrite(Right_Input2, 0);
 }
