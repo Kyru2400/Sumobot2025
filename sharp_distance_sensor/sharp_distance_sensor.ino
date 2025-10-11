@@ -20,11 +20,21 @@ void setup() {
 
 void loop() {
   float LeftDistance = getSharpIR_Distance(SharpIR_Left_Pin);
+  float RightDistance = getSharpIR_Distance(SharpIR_Right_Pin);
+
   if (isnan(LeftDistance)) {
-    Serial.println(F("Distance: ---"));
+    Serial.println(F("Distance Left: ---"));
   } else {
-    Serial.print(F("Distance: "));
+    Serial.print(F("Distance Left: "));
     Serial.print(LeftDistance, 1);
+    Serial.println(F(" cm"));
+  }
+
+  if (isnan(RightDistance)){
+    Serial.println(F("Distance Right: ---"));
+  } else {
+    Serial.print(F("Distance Right: "));
+    Serial.print (RightDistance, 1);
     Serial.println(F(" cm"));
   }
 }
