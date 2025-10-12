@@ -28,15 +28,15 @@ void setup() {
 
 void loop() {
       Robot_Forward();
-  while (Status_IR_Right() || Status_IR_Left()) {
+  while (Status_IR_Right() && Status_IR_Left()) {
 
   }
 
   Robot_Backward();
-  delay(600);
+  delay(300);
   Robot_Stop();
   delay(100);
   Robot_TurnRight();
-  delay(100);
+  delay(150);
 
 }
