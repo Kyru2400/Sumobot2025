@@ -7,8 +7,6 @@
 #define Right_Input1 18
 #define Right_Input2 19
 
-const unsigned int Motor_Speed = 160;
-
 void RightMotor_Stop() {
   analogWrite(Right_Enable, 0);
   digitalWrite(Right_Input1, 0);

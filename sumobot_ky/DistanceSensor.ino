@@ -19,29 +19,53 @@ void DistanceSensor_Setup() {
   Serial.println(F("ESP32 + GP2Y0A21YK0F distance (cm)"));
 }
 
-float getSharpIR_Distance(int PinToUse) {
-  // Average a handful of mV readings for stability
-  uint32_t sum_mV = 0;
-  for (int i = 0; i < NUM_SAMPLES; ++i) {
-    sum_mV += analogReadMilliVolts(PinToUse);  // ESP32 API
-    delayMicroseconds(500);
+float getSharpIR_Distance(int PinToUse, bool SharpIR_Variant) {
+  const int NUM_SAMPLES = 16;
+  uint32_t sum = 0;
+
+  for (int i = 0; i < NUM_SAMPLES; i++) {
+    sum += analogReadMilliVolts(PinToUse);
+    delayMicroseconds(300);
   }
-  const float mv = sum_mV * 1.0f / NUM_SAMPLES;
-  const float v = mv / 1000.0f;
 
-  const float cm = voltsToCm(v);
+  float mv = sum / (float)NUM_SAMPLES;
+  float v  = mv / 1000.0f;
 
-  delay(100);
-
+  float cm = voltsToCm(v, SharpIR_Variant);
+  if (isnan(cm)) return -1.0f;   // return -1 if invalid reading
   return cm;
 }
 
-static inline float voltsToCm(float v) {
-  if (v < 0.05f) return NAN;  // ignore near-zero
-  const float k = 27.728f;
-  const float n = -1.2045f;  // d ≈ 27.728 * v^-1.2045
-  float d = k * powf(v, n);
-  if (d < 10.0f) d = 10.0f;  // clamp to usable range
-  if (d > 80.0f) d = 80.0f;
-  return d;
+
+// Converts voltage (in V) to distance (in cm) for 30 cm or 80 cm Sharp IR
+static inline float voltsToCm(float v, bool WhichVariant) {
+  // LUT for GP2Y0A41SK0F (4–30 cm)
+  static const float lut30_v[]  = {3.10, 2.50, 1.95, 1.60, 1.30, 1.05, 0.90, 0.78, 0.70, 0.62, 0.56, 0.50, 0.45};
+  static const float lut30_cm[] = {4.0,  5.0,  7.0,  9.0, 10.0, 12.0, 15.0, 18.0, 20.0, 22.0, 25.0, 27.0, 30.0};
+  const int LUT30_LEN = sizeof(lut30_v)/sizeof(lut30_v[0]);
+
+  // LUT for GP2Y0A21YK0F (10–80 cm)
+  static const float lut80_v[]  = {3.00, 2.40, 1.85, 1.50, 1.20, 1.00, 0.86, 0.80, 0.72, 0.66, 0.60, 0.55, 0.51, 0.48, 0.46, 0.44};
+  static const float lut80_cm[] = {10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0};
+  const int LUT80_LEN = sizeof(lut80_v)/sizeof(lut80_v[0]);
+
+  // Select which model you're using:
+  const bool use30cm = WhichVariant;  // <-- set to true for 30 cm variant, false for 80 cm variant
+
+  const float* lut_v  = use30cm ? lut30_v  : lut80_v;
+  const float* lut_cm = use30cm ? lut30_cm : lut80_cm;
+  const int n = use30cm ? LUT30_LEN : LUT80_LEN;
+
+  if (v < 0.05f) return NAN;
+  if (v >= lut_v[0])   return lut_cm[0];
+  if (v <= lut_v[n - 1]) return lut_cm[n - 1];
+
+  // Find where voltage fits and interpolate
+  for (int i = 0; i < n - 1; i++) {
+    if (v <= lut_v[i] && v >= lut_v[i + 1]) {
+      float t = (v - lut_v[i + 1]) / (lut_v[i] - lut_v[i + 1]);
+      return lut_cm[i + 1] + t * (lut_cm[i] - lut_cm[i + 1]);
+    }
+  }
+  return NAN;
 }
