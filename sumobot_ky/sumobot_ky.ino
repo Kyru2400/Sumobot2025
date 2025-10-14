@@ -84,15 +84,15 @@ void Robot_Attack() {
   Motor_Speed = 255;
   Robot_Forward();
   while (1) {
-    if (!Status_IR_Right() && !Status_IR_Left()) {
+    if (!Status_IR_Right() || !Status_IR_Left()) {
       score++;
     }
 
-    if (Status_IR_Right() && Status_IR_Left()) {
+    if (Status_IR_Right() || Status_IR_Left()) {
       score = 0;
     }
 
-    if (score > 10) {
+    if (score > 3) {
       goto exit_forward_loop;
     }
     delay(5);
@@ -102,7 +102,7 @@ exit_forward_loop:
 }
 
 void Robot_Retreat() {
-  Motor_Speed = 150;
+  Motor_Speed = 180;
   Robot_Backward();
-  delay(600);
+  delay(1000);
 }
