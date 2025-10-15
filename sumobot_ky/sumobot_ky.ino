@@ -61,18 +61,18 @@ void loop() {
   }
 
   if (getSharpIR_Distance(SharpIR_Right_Pin, true) < 15.0) {
-    while (getSharpIR_Distance(SharpIR_Center_Pin, false) > 30.0) {
+    while (getSharpIR_Distance(SharpIR_Center_Pin, false) > 25.0) {
       Robot_TurnRight();
     }
     Robot_Attack();
     Robot_Retreat();
   } else if (getSharpIR_Distance(SharpIR_Left_Pin, true) < 15.0) {
-    while (getSharpIR_Distance(SharpIR_Center_Pin, false) > 30.0) {
+    while (getSharpIR_Distance(SharpIR_Center_Pin, false) > 25.0) {
       Robot_TurnLeft();
     }
     Robot_Attack();
     Robot_Retreat();
-  } else if (getSharpIR_Distance(SharpIR_Center_Pin, false) > 30.0) {
+  } else if (getSharpIR_Distance(SharpIR_Center_Pin, false) > 25.0) {
     Robot_Attack();
     Robot_Retreat();
   } else {
@@ -81,28 +81,29 @@ void loop() {
 }
 
 void Robot_Attack() {
-  Motor_Speed = 255;
+  Motor_Speed = 180;
   Robot_Forward();
   while (1) {
-    if (!Status_IR_Right() || !Status_IR_Left()) {
+    if (!Status_IR_Right() && !Status_IR_Left()) {
       score++;
     }
 
-    if (Status_IR_Right() || Status_IR_Left()) {
+    if (Status_IR_Right() && Status_IR_Left()) {
       score = 0;
     }
 
-    if (score > 3) {
+    if (score > 6) {
       goto exit_forward_loop;
     }
-    delay(5);
+    delay(3);
   }
 exit_forward_loop:
-  delay(10);
+  delay(5);
+  Robot_Retreat();
 }
 
 void Robot_Retreat() {
-  Motor_Speed = 180;
+  Motor_Speed = 80;
   Robot_Backward();
-  delay(1000);
+  delay(300);
 }
