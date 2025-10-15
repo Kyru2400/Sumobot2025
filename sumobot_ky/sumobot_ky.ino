@@ -4,25 +4,27 @@ Author: Keith Kyru D. Tuscano
 Date: 10/09/25
 Version: 1.0
 */
-
-#include <math.h>
+#include <Arduino.h>
+#include "ESP32SharpIR.h"
 
 #define Calibration_Button_Pin 22
-
-#define SharpIR_Left_Pin 36
-#define SharpIR_Right_Pin 39
-#define SharpIR_Center_Pin 34
-// #define NUM_SAMPLES 16
 
 uint16_t score = 0;
 unsigned int Motor_Speed = 160;
 
+bool Attack_Center = false;
+bool Attack_Left = false;
+bool Attack_Right = false;
+
+uint8_t Attack_Score=0;
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Sumobot Start...");
+
   Motor_Setup();
-  IR_Setup();
-  // DistanceSensor_Setup();
+
+  DistanceSensor_setup();
 
   pinMode(Calibration_Button_Pin, INPUT_PULLUP);
 
@@ -32,74 +34,36 @@ void setup() {
   }
 
   delay(5000);
+  Serial.println("GO!");
 }
 
-unsigned int Dist_Mid = 0;
-unsigned int Dist_Right = 0;
-unsigned int Dist_Left = 0;
+
 
 void loop() {
-  //   Serial.println("SharpIR Mid:" + String(getSharpIR_Analog(SharpIR_Center_Pin)));
-  //   Serial.println("SharpIR Right:" + String(getSharpIR_Analog(SharpIR_Right_Pin)));
-  //   Serial.println("SharpIR Left:" + String(getSharpIR_Analog(SharpIR_Left_Pin)));
-  //   delay (1000);
+  DistanceSensor_Updated();
 
-  update_Dist();
-
-  Serial.println("SharpIR Mid:" + String(Dist_Mid));
-  // Serial.println("SharpIR Left:" + String(Dist_Left));
-  // Serial.println("SharpIR Right:" + String(Dist_Right));
-
-  delay(1000);
-
-
-  if (Dist_Mid > 450 && Dist_Mid != 0) {
-    Serial.println("Attack Mid!");
-    // Robot_Attack();
-    // Robot_Retreat();
-  }
-
-  if (Dist_Right > 1450 && Dist_Right != 0) {
-    Serial.println("Attack Right!");
-    // Robot_TurnRight();
-    while (Dist_Mid > 450 && Dist_Mid != 0) {
-      update_Dist();
-    }
-  }
-
-  if (Dist_Left > 1650 && Dist_Left != 0) {
-    Serial.println("Attack Left!");
-    // Robot_TurnLeft();
-    while (Dist_Mid > 450 && Dist_Mid != 0) {
-      update_Dist();
-    }
-  }
+  // if (Attack_Left && !Attack_Right && !Attack_Center) {
+  //   Serial.println("Turn Left");
+  // }else if( Attack_Right && !Attack_Left && !Attack_Center) {
+  //   Serial.println("Turn Right");
+  // }else if( Attack_Center && !Attack_Left && !Attack_Right) {
+  //   Serial.println("Attack");
+  //   // Robot_Attack();
+  // }
 }
 
-void update_Dist() {
-  Dist_Mid = get_This_Distance(SharpIR_Center_Pin);
-  Dist_Right = get_This_Distance(SharpIR_Right_Pin);
-  Dist_Left = get_This_Distance(SharpIR_Left_Pin);
-}
-
-unsigned int get_This_Distance(int ThisPin) {
-  uint32_t ThisDistance = 0;
-  for (int i = 0; i < 3; i++) {
-    ThisDistance = ThisDistance + getSharpIR_Analog(ThisPin);
-  }
-  return ThisDistance / 3;
-}
 
 
 void Robot_Attack() {
-  Motor_Speed = 200;
+  Motor_Speed = 160;
+  score = 0;
   Robot_Forward();
   while (1) {
-    if (!Status_IR_Right() && !Status_IR_Left()) {
+    if (!Status_IR_Right() || !Status_IR_Left()) {
       score++;
     }
 
-    if (Status_IR_Right() && Status_IR_Left()) {
+    if (Status_IR_Right() || Status_IR_Left()) {
       score = 0;
     }
 
@@ -110,11 +74,32 @@ void Robot_Attack() {
   }
 exit_forward_loop:
   delay(10);
+  Robot_Stop();
+  delay(100);
   Robot_Retreat();
 }
 
 void Robot_Retreat() {
-  Motor_Speed = 180;
+  Motor_Speed = 120;
+  score = 0;
   Robot_Backward();
-  delay(600);
+  delay(300);
+  while(1){
+    if(Status_IR_Right() || Status_IR_Left()){
+      score++;
+    }
+
+    if(!Status_IR_Right() || !Status_IR_Left()){
+      score = 0;
+    }
+
+    if(score > 6){
+      goto exit_backward_loop;
+    }
+  }
+exit_backward_loop:
+  delay(10);
+  Robot_Stop();
+  delay(100);
+  
 }
