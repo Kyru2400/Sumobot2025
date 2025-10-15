@@ -43,25 +43,43 @@ void loop() {
   //   Serial.println("SharpIR Right:" + String(getSharpIR_Analog(SharpIR_Right_Pin)));
   //   Serial.println("SharpIR Left:" + String(getSharpIR_Analog(SharpIR_Left_Pin)));
   //   delay (1000);
-  Dist_Mid = get_This_Distance(SharpIR_Center_Pin);
-  Dist_Right = get_This_Distance(SharpIR_Right_Pin);
-  Dist_Left = get_This_Distance(SharpIR_Left_Pin);
 
-    Serial.println("SharpIR Mid:" + String(Dist_Mid));
-    delay (1000);
+  update_Dist();
+
+  Serial.println("SharpIR Mid:" + String(Dist_Mid));
+  // Serial.println("SharpIR Left:" + String(Dist_Left));
+  // Serial.println("SharpIR Right:" + String(Dist_Right));
+
+  delay(1000);
 
 
   if (Dist_Mid > 450 && Dist_Mid != 0) {
     Serial.println("Attack Mid!");
+    // Robot_Attack();
+    // Robot_Retreat();
   }
 
-  if (Dist_Right > 1650 && Dist_Right != 0) {
+  if (Dist_Right > 1450 && Dist_Right != 0) {
     Serial.println("Attack Right!");
+    // Robot_TurnRight();
+    while (Dist_Mid > 450 && Dist_Mid != 0) {
+      update_Dist();
+    }
   }
 
-  if (Dist_Left > 1450 && Dist_Left != 0) {
+  if (Dist_Left > 1650 && Dist_Left != 0) {
     Serial.println("Attack Left!");
+    // Robot_TurnLeft();
+    while (Dist_Mid > 450 && Dist_Mid != 0) {
+      update_Dist();
+    }
   }
+}
+
+void update_Dist() {
+  Dist_Mid = get_This_Distance(SharpIR_Center_Pin);
+  Dist_Right = get_This_Distance(SharpIR_Right_Pin);
+  Dist_Left = get_This_Distance(SharpIR_Left_Pin);
 }
 
 unsigned int get_This_Distance(int ThisPin) {
