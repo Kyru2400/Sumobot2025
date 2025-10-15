@@ -2,8 +2,8 @@
 #define IR_Left_Pin 15
 
 void IR_Setup() {
-  pinMode(IR_Right_Pin, INPUT);
-  pinMode(IR_Left_Pin, INPUT);
+  pinMode(IR_Right_Pin, INPUT_PULLUP);
+  pinMode(IR_Left_Pin, INPUT_PULLUP);
 
 }
 
