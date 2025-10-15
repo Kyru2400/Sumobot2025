@@ -95,15 +95,15 @@ void Robot_Attack() {
     if (score > 6) {
       goto exit_forward_loop;
     }
-    delay(3);
+    delay(5);
   }
 exit_forward_loop:
-  delay(5);
+  delay(10);
   Robot_Retreat();
 }
 
 void Robot_Retreat() {
   Motor_Speed = 80;
   Robot_Backward();
-  delay(300);
+  delay(600);
 }
