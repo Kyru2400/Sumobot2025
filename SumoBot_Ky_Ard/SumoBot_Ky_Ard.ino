@@ -16,9 +16,9 @@
 #define Button_Calibration_Pin 4
 #define Default_LED_Pin 13
 
-SharpIR DistanceSensor_Center( SharpIR::GP2Y0A21YK0F, SharpIR_Center_Pin );
-SharpIR DistanceSensor_Left( SharpIR::GP2Y0A21YK0F, SharpIR_Left_Pin );
-SharpIR DistanceSensor_Right( SharpIR::GP2Y0A21YK0F, SharpIR_Right_Pin );
+SharpIR DistanceSensor_Center(SharpIR::GP2Y0A21YK0F, SharpIR_Center_Pin);
+SharpIR DistanceSensor_Left(SharpIR::GP2Y0A21YK0F, SharpIR_Left_Pin);
+SharpIR DistanceSensor_Right(SharpIR::GP2Y0A21YK0F, SharpIR_Right_Pin);
 
 int Distance_Center = 0;
 int Distance_Left = 0;
@@ -27,9 +27,12 @@ int Distance_Right = 0;
 #define BorderSensor_Left_Pin 2
 #define BorderSensor_Right_Pin 3
 
-void setup()
-{
-  Serial.begin( 9600 ); //Enable the serial comunication
+bool BorderReached = false;
+bool EnemyFound = false;
+bool Attacking = false;
+
+void setup() {
+  Serial.begin(9600);  //Enable the serial comunication
   Serial.println("SumoBot Start...");
   Border_Sensor_Setup();
 
@@ -39,52 +42,78 @@ void setup()
   pinMode(Default_LED_Pin, OUTPUT);
   digitalWrite(Default_LED_Pin, LOW);
 
-  if(!digitalRead(Button_Calibration_Pin)){
-    while(1){
-    digitalWrite(Default_LED_Pin, HIGH);
-    delay(100);
-    digitalWrite(Default_LED_Pin, LOW);
-    delay(100);
+
+
+  if (!digitalRead(Button_Calibration_Pin)) {
+    while (1) {
+      digitalWrite(Default_LED_Pin, HIGH);
+      delay(100);
+      digitalWrite(Default_LED_Pin, LOW);
+      delay(100);
     }
   }
 
-  for(int i=0; i<10; i++){
+  for (int i = 0; i < 5; i++) {
     digitalWrite(Default_LED_Pin, HIGH);
     delay(500);
     digitalWrite(Default_LED_Pin, LOW);
     delay(500);
   }
 
-
+  ISR_Setup();
 }
 
-void loop(){
-    MotorLeft_Forward(255);
-  MotorRight_Forward(255);
+void loop() {
 
-  delay(2000);
-  Robot_Stop();
-  delay(1000);
-
-  MotorLeft_Backward(255);
-  MotorRight_Backward(255);
-  delay(2000);
-  Robot_Stop();
-  delay(1000);
-
-  // Update_Distance();
-  // Serial.print("Center: ");
-  // Serial.print(Distance_Center);
-  // Serial.print(" cm, Left: ");
-  // Serial.print(Distance_Left);
-  // Serial.print(" cm, Right: ");
-  // Serial.print(Distance_Right);
-  // Serial.println(" cm");
-
-  // Serial.print("Border Left: ");
-  // Serial.print(ReadBorderSensorLeft());
-  // Serial.print(", Border Right: ");
-  // Serial.println(ReadBorderSensorRight());
-
-  // delay(500); //Wait 500 milliseconds before the next reading
+  if (BorderReached) {
+    Robot_Stop();
+    delay(600);
+    Robot_Backward(255);
+    delay(500);
+    uint8_t check = 0;
+    while (ReadBorderSensorLeft() || ReadBorderSensorRight()) {
+      delay(100);
+      check++;
+      if(check>=15){
+        break;
+      }
+    }
+    Robot_Stop();
+    delay(300);
+    BorderReached = false;
+    Robot_TurnRight(255);
+    delay(600);
+    Robot_Stop();
+    Attacking = false;
+  } else {
+    Update_Distance();
+    if (Distance_Left < 30 && Distance_Right > 30 && Distance_Center > 30 && !Attacking && !BorderReached) {
+      //Serial.println("Enemy to the Left");
+      Robot_TurnLeft(180);
+      while (Distance_Center > 30) {
+        Update_Distance();
+      }
+      Robot_Stop();
+      EnemyFound = true;
+      Robot_Forward(255);
+      Attacking = true;
+    } else if (Distance_Right < 30 && Distance_Left > 30 && Distance_Center > 30 && !Attacking && !BorderReached) {
+      //Serial.println("Enemy to the Right");
+      Robot_TurnRight(180);
+      while (Distance_Center > 30) {
+        Update_Distance();
+      }
+      Robot_Stop();
+      EnemyFound = true;
+      Robot_Forward(255);
+      Attacking = true;
+    } else if (Distance_Center < 30 && !Attacking && !BorderReached) {
+      EnemyFound = true;
+      Robot_Forward(255);
+      Attacking = true;
+    } else if (Distance_Center > 30 && Distance_Left > 30 && Distance_Right > 30 && !Attacking && !BorderReached) {
+      EnemyFound = false;
+      Robot_TurnRight(180);
+    }
+  }
 }
