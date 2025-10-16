@@ -9,24 +9,34 @@ SharpIR DistanceSensor_Center( SharpIR::GP2Y0A21YK0F, SharpIR_Center_Pin );
 SharpIR DistanceSensor_Left( SharpIR::GP2Y0A21YK0F, SharpIR_Left_Pin );
 SharpIR DistanceSensor_Right( SharpIR::GP2Y0A21YK0F, SharpIR_Right_Pin );
 
+int Distance_Center = 0;
+int Distance_Left = 0;
+int Distance_Right = 0;
+
+#define BorderSensor_Left_Pin 2
+#define BorderSensor_Right_Pin 3
+
 void setup()
 {
   Serial.begin( 9600 ); //Enable the serial comunication
+  Border_Sensor_Setup();
 }
 
 void loop()
 {
-  int distance_center = DistanceSensor_Center.getDistance(); //Calculate the distance in centimeters and store the value in a variable
-  int distance_left = DistanceSensor_Left.getDistance();
-  int distance_right = DistanceSensor_Right.getDistance();
-
+  Update_Distance();
   Serial.print("Center: ");
-  Serial.print(distance_center);
+  Serial.print(Distance_Center);
   Serial.print(" cm, Left: ");
-  Serial.print(distance_left);
+  Serial.print(Distance_Left);
   Serial.print(" cm, Right: ");
-  Serial.print(distance_right);
+  Serial.print(Distance_Right);
   Serial.println(" cm");
+
+  Serial.print("Border Left: ");
+  Serial.print(ReadBorderSensorLeft());
+  Serial.print(", Border Right: ");
+  Serial.println(ReadBorderSensorRight());
 
   delay(500); //Wait 500 milliseconds before the next reading
 }
