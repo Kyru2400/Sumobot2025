@@ -11,15 +11,15 @@ void Motor_Setup() {
 }
 
 void MotorLeft_Stop() {
-  analogWrite(MotorLeft_EnablePin, 0);
   digitalWrite(MotorLeft_DirPin1, 0);
   digitalWrite(MotorLeft_DirPin2, 0);
+  analogWrite(MotorLeft_EnablePin, 0);
 }
 
 void MotorRight_Stop() {
-  analogWrite(MotorRight_EnablePin, 0);
   digitalWrite(MotorRight_DirPin1, 0);
   digitalWrite(MotorRight_DirPin2, 0);
+  analogWrite(MotorRight_EnablePin, 0);
 }
 
 void Robot_Stop() {
@@ -38,25 +38,25 @@ void MotorLeft_Forward(int speed) {
 void MotorLeft_Backward(int speed) {
   // if(speed < 0) speed = 0;
   // if(speed > 255) speed = 255;
-  analogWrite(MotorLeft_EnablePin, speed);
   digitalWrite(MotorLeft_DirPin1, 1);
   digitalWrite(MotorLeft_DirPin2, 0);
+  analogWrite(MotorLeft_EnablePin, speed);
 }
 
 void MotorRight_Forward(int speed) {
   // if(speed < 0) speed = 0;
   // if(speed > 255) speed = 255;
-  analogWrite(MotorRight_EnablePin, speed);
   digitalWrite(MotorRight_DirPin1, 0);
   digitalWrite(MotorRight_DirPin2, 1);
+  analogWrite(MotorRight_EnablePin, speed);
 }
 
 void MotorRight_Backward(int speed) {
   // if(speed < 0) speed = 0;
   // if(speed > 255) speed = 255;
-  analogWrite(MotorRight_EnablePin, speed);
   digitalWrite(MotorRight_DirPin1, 1);
   digitalWrite(MotorRight_DirPin2, 0);
+  analogWrite(MotorRight_EnablePin, speed);
 }
 
 void Robot_Forward(int speed) {
