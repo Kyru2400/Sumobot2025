@@ -35,7 +35,7 @@ uint8_t AttackingDistance = 20;
 
 uint8_t SensedBorder = 0;  //0=Null 1=Left 2=Right 3=both
 
-uint32_t AttackingInterval = 1200;
+uint32_t AttackingInterval = 2400;
 uint32_t LastAttack = 0;
 
 void setup() {
@@ -92,21 +92,31 @@ void loop() {
 
   switch (SensedBorder) {
     case 1:
+      Robot_Backward(200);
+      delay(600);
       Robot_TurnLeft(200);
-      delay(360);
+      delay(180);
+      Robot_Forward(200);
+      delay(240);
       Robot_Stop();
       LastAttack = millis();
       break;
 
     case 2:
+      Robot_Backward(200);
+      delay(600);
       Robot_TurnRight(200);
-      delay(360);
+      delay(180);
+      Robot_Forward(200);
+      delay(240);
       Robot_Stop();
       LastAttack = millis();
       break;
     case 3:
       Robot_Backward(200);
-      delay(300);
+      delay(600);
+      Robot_Forward(200);
+      delay(240);
       Robot_Stop();
       LastAttack = millis();
       break;
